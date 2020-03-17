@@ -16,7 +16,7 @@ Bom_data_minmax <-group_by(Bom_data_temp, Station_number) %>%
   summarise(n_days= n())
 Bom_data_minmax
 
-#Question 2- June
+#Question 2- lowest average daily temperature difference- June
 Bom_data_temp <- select(BOM_data, Station_number,Month,Temp_min_max) %>% 
   separate(Temp_min_max, into = c("Temp_min", "Temp_max"), 
                          sep="/", remove= FALSE) %>% 
@@ -29,9 +29,27 @@ mutate (Bom_data_temp, dif_temp= Temp_max-Temp_min) %>% group_by(Month) %>%
   summarise(n_dif_temp= mean(dif_temp)) %>% arrange(n_dif_temp)
 Bom_data_temp
 
-#Question 3
+#Question 3-State lowest average daily temperature difference
 BOM_stations
 Bom_station_ga <- gather(BOM_stations, key= 'Station_number', value = 'data', -info)
 Bom_station_ga                                                                         
 Bom_station_sp <- spread(Bom_station_ga, key='info', value= 'data')
+Bom_station_sp$Station_number <- as.numeric(Bom_station_sp$Station_number)
+#Bring data from challenge 2
+Bom_sta_2 <- group_by(Bom_data_temp, Station_number)
+Bom_sta_2 
+Bom_sta_2_mean <- summarise(Bom_sta_2, mean_Temp_min= mean(Temp_min),
+                            mean_Temp_max= mean(Temp_max)) 
+#Combined data 1 and 2
 Bom_station_sp
+Bom_sta_2_mean
+Bom_combined <- inner_join(Bom_station_sp, Bom_sta_2_mean, by= "Station_number")
+Bom_combined
+Bom_mean_combined <- group_by(Bom_combined, state) %>% 
+  summarise(mean_Tmin_state=mean(mean_Temp_min), mean_Tmax_state=mean(mean_Temp_max)) %>% 
+  arrange(mean_Tmin_state)
+Bom_mean_combined 
+#Final answer Question 3 = VICTORIA
+Bom_Temp_diff_state <- mutate(Bom_mean_combined, Temp_diff= mean_Tmax_state-mean_Tmin_state) %>% 
+  arrange(Temp_diff)
+Bom_Temp_diff_state
