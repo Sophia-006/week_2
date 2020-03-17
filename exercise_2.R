@@ -4,7 +4,8 @@ BOM_data <- read_csv('data/BOM_data.csv')
 BOM_stations <- read_csv('data/BOM_stations.csv')
 BOM_data
 BOM_stations
-#Question 1-
+
+#Question 1
 select(BOM_data, Station_number,Temp_min_max)
 Bom_data_temp <- select(BOM_data, Station_number,Temp_min_max, Rainfall) %>% 
   separate(Temp_min_max,into= c('min', 'max'), sep='/') %>% filter(min!= '-', max!= '-',
@@ -29,5 +30,8 @@ mutate (Bom_data_temp, dif_temp= Temp_max-Temp_min) %>% group_by(Month) %>%
 Bom_data_temp
 
 #Question 3
-
-                                                                         
+BOM_stations
+Bom_station_ga <- gather(BOM_stations, key= 'Station_number', value = 'data', -info)
+Bom_station_ga                                                                         
+Bom_station_sp <- spread(Bom_station_ga, key='info', value= 'data')
+Bom_station_sp
