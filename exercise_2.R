@@ -42,11 +42,24 @@ Bom_combined <- left_join(Bom_station_sp, Bom_data_temp, by= "Station_number")
 Bom_combined
 Bom_mean_combined <- Bom_combined %>% 
   group_by(state) %>% 
-  mutate(Temp_diff=Temp_max- Temp_min) %>%   
+  mutate(Temp_diff=Temp_max- Temp_min) %>%
+  filter(!is.na(Temp_diff)) %>% 
   summarise(mean_state_min=mean(Temp_min), mean_state_max=mean(Temp_max))
- # filter(is.na(Temp_diff))
+
 #Final answer Question 3 = QLD
 Bom_Temp_diff_state <- mutate(Bom_mean_combined, Temp_diff= mean_state_max-mean_state_min) %>% 
   arrange(Temp_diff)
 
-#Question4
+#Question4-higher avarage solar exposure
+Bom_solar_exp <- BOM_data %>% 
+  filter(Solar_exposure != '-')
+Bom_solar_exp$Solar_exposure <- as.numeric (Bom_solar_exp$Solar_exposure) 
+Bom_solar_mean <- Bom_solar_exp %>% 
+  group_by(Station_number) %>% 
+  summarise(mean_solar_exp=mean (Solar_exposure))
+
+#combined data from before
+Bom_solar_combined <- left_join(Bom_solar_mean, Bom_station_sp, by= "Station_number") %>%
+  group_by(lon) %>% 
+  summarise(mean_lon=mean(mean_solar_exp)) %>% 
+  arrange (lon) # answer lowest=19.19 highest 19.49
